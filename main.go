@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
@@ -28,6 +29,26 @@ func main() {
 
 	commitTxOutPointList := make([]*wire.OutPoint, 0)
 	// you can get from `client.ListUnspent()`
+	utxoAddress := "tb1p8lh4np5824u48ppawq3numsm7rss0de4kkxry0z70dcfwwwn2fcspyyhc7"
+	address, err := btcutil.DecodeAddress(utxoAddress, netParams)
+	if err != nil {
+		log.Fatalf("decode address err %v", err)
+	}
+	unspentList, err := client.ListUnspentMinMaxAddresses(1, 9999999, []btcutil.Address{address})
+
+	if err != nil {
+		log.Fatalf("list err err %v", err)
+	}
+
+	for i := range unspentList {
+		inTxid, err := chainhash.NewHashFromStr(unspentList[i].TxID)
+		if err != nil {
+			log.Fatalf("decode in hash err %v", err)
+		}
+		commitTxOutPointList = append(commitTxOutPointList, wire.NewOutPoint(inTxid, unspentList[i].Vout))
+	}
+
+	// or manual
 	{
 		inTxid, err := chainhash.NewHashFromStr("6b5d9c6010e108458d34377c914c6b9f85703bf8dd17c01dd50782be5902119e")
 		if err != nil {
