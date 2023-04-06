@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -95,17 +94,21 @@ func main() {
 		SingleRevealTxOnly:   false,
 	}
 
-	tool, err := ord.InitInscriptionTool(netParams, client, &request)
+	tool, err := ord.NewInscriptionTool(netParams, client, &request)
 	if err != nil {
 		log.Fatalf("Failed to create inscription tool: %v", err)
+	}
+	err = tool.BackupRecoveryKeyToRpcNode()
+	if err != nil {
+		log.Fatalf("Failed to backup recovery key: %v", err)
 	}
 	commitTxHash, revealTxHash, err := tool.Send()
 	if err != nil {
 		log.Fatalf("send tx errr, %v", err)
 	}
-	fmt.Println("commitTxHash, " + commitTxHash.String())
+	log.Println("commitTxHash, " + commitTxHash.String())
 	for i := range revealTxHash {
-		fmt.Println("revealTxHash, " + revealTxHash[i].String())
+		log.Println("revealTxHash, " + revealTxHash[i].String())
 	}
 	// signet server
 	// http://signet.ordinals.com/
