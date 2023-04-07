@@ -53,8 +53,8 @@ func main() {
 	request := ord.InscriptionRequest{
 		CommitTxOutPointList:   commitTxOutPointList,
 		CommitTxPrivateKeyList: commitTxPrivateKeyList,
-		CommitFeeRate:          180,
-		FeeRate:                181,
+		CommitFeeRate:          18,
+		FeeRate:                19,
 		DataList:               dataList,
 		SingleRevealTxOnly:     false,
 	}
@@ -80,13 +80,16 @@ func main() {
 	for i, revealTxHex := range revealTxHexList {
 		log.Printf("revealTxHex %d %s \n", i, revealTxHex)
 	}
-	commitTxHash, revealTxHash, err := tool.Send()
+	commitTxHash, revealTxHashList, inscriptions, fees, err := tool.Inscribe()
 	if err != nil {
 		log.Fatalf("send tx errr, %v", err)
 	}
 	log.Println("commitTxHash, " + commitTxHash.String())
-	for i := range revealTxHash {
-		log.Println("revealTxHash, " + revealTxHash[i].String())
+	for i := range revealTxHashList {
+		log.Println("revealTxHash, " + revealTxHashList[i].String())
 	}
-
+	for i := range inscriptions {
+		log.Println("inscription, " + inscriptions[i])
+	}
+	log.Println("fees: ", fees)
 }

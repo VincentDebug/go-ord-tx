@@ -102,14 +102,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to backup recovery key: %v", err)
 	}
-	commitTxHash, revealTxHash, err := tool.Send()
+	commitTxHash, revealTxHashList, inscriptions, fees, err := tool.Inscribe()
 	if err != nil {
 		log.Fatalf("send tx errr, %v", err)
 	}
 	log.Println("commitTxHash, " + commitTxHash.String())
-	for i := range revealTxHash {
-		log.Println("revealTxHash, " + revealTxHash[i].String())
+	for i := range revealTxHashList {
+		log.Println("revealTxHash, " + revealTxHashList[i].String())
 	}
+	for i := range inscriptions {
+		log.Println("inscription, " + inscriptions[i])
+	}
+	log.Println("fees: ", fees)
 	// signet server
 	// http://signet.ordinals.com/
 	// https://signet.ordapi.xyz/
