@@ -117,7 +117,7 @@ func (tool *InscriptionTool) _initTool(net *chaincfg.Params, request *Inscriptio
 		destinations[i] = request.DataList[i].Destination
 
 	}
-	totalRevealPrevOutput, err := tool.buildEmptyRevealTx(request.SingleRevealTxOnly, destinations, request.FeeRate, revealOutValue)
+	totalRevealPrevOutput, err := tool.buildEmptyRevealTx(request.SingleRevealTxOnly, destinations, revealOutValue, request.FeeRate)
 	if err != nil {
 		return err
 	}
