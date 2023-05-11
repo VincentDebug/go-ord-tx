@@ -96,26 +96,25 @@ func NewInscriptionToolWithBtcApiClient(net *chaincfg.Params, btcApiClient btcap
 		},
 		commitTxPrevOutputFetcher: txscript.NewMultiPrevOutFetcher(nil),
 		commitTxPrivateKeyList:    request.CommitTxPrivateKeyList,
-		txCtxDataList:             make([]*inscriptionTxCtxData, len(request.DataList)),
 		revealTxPrevOutputFetcher: txscript.NewMultiPrevOutFetcher(nil),
 	}
 	return tool, tool._initTool(net, request)
 }
 
 func (tool *InscriptionTool) _initTool(net *chaincfg.Params, request *InscriptionRequest) error {
-	destinations := make([]string, len(request.DataList))
 	revealOutValue := defaultRevealOutValue
 	if request.RevealOutValue > 0 {
 		revealOutValue = request.RevealOutValue
 	}
+	tool.txCtxDataList = make([]*inscriptionTxCtxData, len(request.DataList))
+	destinations := make([]string, len(request.DataList))
 	for i := 0; i < len(request.DataList); i++ {
-		txCtxData, err := createInscriptionTxCtxData(net, request, i)
+		txCtxData, err := createInscriptionTxCtxData(net, request.DataList[i])
 		if err != nil {
 			return err
 		}
 		tool.txCtxDataList[i] = txCtxData
 		destinations[i] = request.DataList[i].Destination
-
 	}
 	totalRevealPrevOutput, err := tool.buildEmptyRevealTx(request.SingleRevealTxOnly, destinations, revealOutValue, request.FeeRate)
 	if err != nil {
@@ -136,7 +135,7 @@ func (tool *InscriptionTool) _initTool(net *chaincfg.Params, request *Inscriptio
 	return err
 }
 
-func createInscriptionTxCtxData(net *chaincfg.Params, inscriptionRequest *InscriptionRequest, indexOfRequestDataList int) (*inscriptionTxCtxData, error) {
+func createInscriptionTxCtxData(net *chaincfg.Params, data InscriptionData) (*inscriptionTxCtxData, error) {
 	privateKey, err := btcec.NewPrivateKey()
 	if err != nil {
 		return nil, err
@@ -152,17 +151,17 @@ func createInscriptionTxCtxData(net *chaincfg.Params, inscriptionRequest *Inscri
 		// Therefore, we use two OP_DATA_1 to maintain consistency with ord.
 		AddOp(txscript.OP_DATA_1).
 		AddOp(txscript.OP_DATA_1).
-		AddData([]byte(inscriptionRequest.DataList[indexOfRequestDataList].ContentType)).
+		AddData([]byte(data.ContentType)).
 		AddOp(txscript.OP_0)
 	maxChunkSize := 520
-	bodySize := len(inscriptionRequest.DataList[indexOfRequestDataList].Body)
+	bodySize := len(data.Body)
 	for i := 0; i < bodySize; i += maxChunkSize {
 		end := i + maxChunkSize
 		if end > bodySize {
 			end = bodySize
 		}
 		// to skip txscript.MaxScriptSize 10000
-		inscriptionBuilder.AddFullData(inscriptionRequest.DataList[indexOfRequestDataList].Body[i:end])
+		inscriptionBuilder.AddFullData(data.Body[i:end])
 	}
 	inscriptionScript, err := inscriptionBuilder.Script()
 	if err != nil {
@@ -171,9 +170,10 @@ func createInscriptionTxCtxData(net *chaincfg.Params, inscriptionRequest *Inscri
 	// to skip txscript.MaxScriptSize 10000
 	inscriptionScript = append(inscriptionScript, txscript.OP_ENDIF)
 
+	leafNode := txscript.NewBaseTapLeaf(inscriptionScript)
 	proof := &txscript.TapscriptProof{
-		TapLeaf:  txscript.NewBaseTapLeaf(schnorr.SerializePubKey(privateKey.PubKey())),
-		RootNode: txscript.NewBaseTapLeaf(inscriptionScript),
+		TapLeaf:  leafNode,
+		RootNode: leafNode,
 	}
 
 	controlBlock := proof.ToControlBlock(privateKey.PubKey())
