@@ -414,9 +414,10 @@ func (tool *InscriptionTool) signCommitTx() error {
 	} else {
 		witnessList := make([]wire.TxWitness, len(tool.commitTx.TxIn))
 		for i := range tool.commitTx.TxIn {
+			priv, _ := btcec.PrivKeyFromBytes(tool.commitTxPrivateKeyList[i].Serialize())
 			txOut := tool.commitTxPrevOutputFetcher.FetchPrevOutput(tool.commitTx.TxIn[i].PreviousOutPoint)
 			witness, err := txscript.TaprootWitnessSignature(tool.commitTx, txscript.NewTxSigHashes(tool.commitTx, tool.commitTxPrevOutputFetcher),
-				i, txOut.Value, txOut.PkScript, txscript.SigHashDefault, tool.commitTxPrivateKeyList[i])
+				i, txOut.Value, txOut.PkScript, txscript.SigHashDefault, priv)
 			if err != nil {
 				return err
 			}
