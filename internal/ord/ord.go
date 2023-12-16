@@ -16,8 +16,8 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/pkg/errors"
-	"go-ord-tx/pkg/btcapi"
-	extRpcClient "go-ord-tx/pkg/rpcclient"
+	"github.com/vincentdebug/go-ord-tx/pkg/btcapi"
+	extRpcClient "github.com/vincentdebug/go-ord-tx/pkg/rpcclient"
 	"log"
 )
 

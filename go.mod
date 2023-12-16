@@ -1,4 +1,4 @@
-module go-ord-tx
+module github.com/vincentdebug/go-ord-tx
 
 go 1.20
 
@@ -8,6 +8,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
 	github.com/pkg/errors v0.9.1
+	github.com/tyler-smith/go-bip39 v1.1.0
 )
 
 require (

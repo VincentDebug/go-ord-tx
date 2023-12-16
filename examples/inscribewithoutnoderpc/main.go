@@ -8,8 +8,8 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"go-ord-tx/internal/ord"
-	"go-ord-tx/pkg/btcapi/mempool"
+	"github.com/vincentdebug/go-ord-tx/internal/ord"
+	"github.com/vincentdebug/go-ord-tx/pkg/btcapi/mempool"
 	"log"
 )
 
